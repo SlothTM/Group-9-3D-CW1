@@ -60,12 +60,12 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.58f2\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Animstart.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
-    <Compile Include="Assets\Look.cs" />
+    <Compile Include="Assets\Scripts\Char.cs" />
+    <Compile Include="Assets\Scripts\LoreManager.cs" />
+    <Compile Include="Assets\Scripts\Animstart.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
-    <Compile Include="Assets\LoreManager.cs" />
-    <Compile Include="Assets\Char.cs" />
+    <Compile Include="Assets\Scripts\Look.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
