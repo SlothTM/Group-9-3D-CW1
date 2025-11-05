@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<!-- saved from url=(0041)https://mecabricks.com/en/account/library -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Mecabricks.com | Library</title>
+        
+        
+        <meta name="description" content="Mecabricks is the first web service to publish and display 3D models made with LEGO® bricks. No need to install any plugin, it simply works.">
+        <meta name="robots" content="index, follow">
+        
+        <link rel="stylesheet" type="text/css" media="screen" href="./Villan_files/mylibrary.css">
+        
+        <link rel="icon" type="image/png" href="https://mecabricks.com/assets/images/favicon.png">
+        
+        <script type="text/javascript" async="" src="./Villan_files/js"></script><script async="" src="./Villan_files/analytics.js.download"></script><script src="./Villan_files/phpjs.js.download" type="text/javascript"></script>
+        <script src="./Villan_files/jquery.min.js.download" type="text/javascript"></script>
+        <script src="./Villan_files/mylibrary.js.download" type="text/javascript"></script>
+        
+        <script type="text/javascript">
+            var PATH = "https://mecabricks.com/";
+            var LANG = "en";
+            var baseURL = "https://mecabricks.com/";
+            var language = "en";
+            
+            var LANG_ERROR = 'An error has occured.',
+                LANG_ERRORS = {
+                };
+                LANG_DEC_SEPARATOR = '.';
+                LANG_THOUSANDS_SEP = ',';
+                LANG_VIEWS = 'Views';
+                LANG_LIKES = 'Likes';
+                LANG_COMMENTS = 'Com.';
+                LANG_ROOT = 'Library';
+                LANG_BIN = 'Recycle Bin';
+                LANG_UNTITLED_FOLDER = 'Untitled Folder';
+                LANG_DELETE = 'Delete';
+                LANG_EMPTY_BIN = 'Empty';
+                LANG_LOADING = 'Loading…';
+                LANG_SAVING = 'Saving…';
+                LANG_PROPERTIES = 'Properties';
+                LANG_LINKS = 'Links';
+                LANG_PUBLIC = 'Open to the public';
+                LANG_TYPE = 'Type of model';
+                LANG_AWAITING_APPROVAL = 'Awaiting validation…';
+                LANG_MOC = 'MOC';
+                LANG_SET = 'LEGO set';
+                LANG_MINIFIG = 'LEGO minifig';
+                LANG_SET_REF = 'Set reference';
+                LANG_MINIFIG_REF = 'Minifig reference';
+                LANG_SET_NAME = 'Set name';
+                LANG_MINIFIG_NAME = 'Minifig name';
+                LANG_MOC_WORKSHOP = 'Open in workshop';
+                LANG_MOC_NAME = 'MOC name';
+                LANG_YEAR = 'Year released';
+                LANG_THEME = 'Theme';
+                LANG_DESCRIPTION = 'Description';
+                LANG_TAGS = 'Tags';
+                LANG_CANCEL = 'Cancel';
+                LANG_SAVE = 'Save';
+                LANG_WORKSHOP = 'Workshop';
+                LANG_GALLERY = 'Public library';
+                LANG_REVISION = 'Revision';
+                LANG_ADD_TAG = 'Add tag…';
+                LANG_TOOLTIP_DEL_REV = 'Delete all the previous revisions';
+                LANG_TOOLTIP_SHOW_WS = 'Open selected revision in the workshop';
+            
+            var AJAX = {},
+                FIELDS = {};
+                
+            var FOLDER_ID = 0;
+            
+            var FILES = [],
+                FILES_SELECTED = [],
+                FILES_CUT = [];
+                
+            var DRAG_ENABLED = true,
+                DRAG = false,
+                START_DRAG_TIMEOUT;
+                
+            var BIN = false;
+            
+            var MODEL_WINDOW;
+        </script>
+        
+        
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-4056998-5', 'auto');
+  ga('send', 'pageview');
+</script>
+
+        
+    </head>
+    <body id="body" onload="init()" onunload="">
+        <div id="curtain" style="height: 954px; display: none;">
+            <div class="spinner-wrapper" style="margin-top: 251px;">
+                <div class="spinner"></div>
+                <div class="label">Loading…</div>
+            </div>
+        </div>
+        <div id="drag-icn" style="display: none; left: 1358px; top: 468px;">1</div>
+        <div id="superglobal">
+            <div id="global">
+                <header>
+    <div class="center">
+        <nav>
+            <div class="logo-wrapper">
+                <a href="https://mecabricks.com/en/" class="sprite logo"></a>
+                <a href="https://mecabricks.com/en/" class="text">Meca<span class="thin">bricks</span></a>
+            </div>
+            <ul class="left">
+                <li><a href="https://mecabricks.com/en/workshop">Workshop</a></li>
+                <li><a href="https://mecabricks.com/en/library/selection">Library</a></li>
+                <li><a href="https://mecabricks.com/en/partmanager">Parts</a></li>
+                <li><a href="https://mecabricks.com/en/shop">Shop</a></li>
+                <li><a href="https://mecabricks.com/en/forum">Forum</a></li>
+            </ul>
+
+
+			
+            <ul class="right">
+
+	
+   				<li><a href="https://mecabricks.com/en/account/library" id="header-username">
+   					Mel0   				</a></li>
+
+   	
+                <li><a href="https://mecabricks.com/en/logout">Log Out</a></li>
+            </ul>
+
+    
+
+        </nav>
+    </div>
+</header>
+                <div id="subHeader">
+    <div id="subHeader-wrapper">
+		<a href="https://mecabricks.com/en/account/library" id="subHeader-library" class="button selected">Library</a>
+		<a href="https://mecabricks.com/en/account/messages" id="subHeader-messages" class="button">Messages</a>
+		<a href="https://mecabricks.com/en/account/notifications" id="subHeader-notifications" class="button">Notifications</a>
+		<a href="https://mecabricks.com/en/account/purchases" id="subHeader-purchases" class="button">Purchases</a>
+		<a href="https://mecabricks.com/en/account/settings" id="subHeader-settings" class="button">Settings</a>
+    </div>
+</div>                <div id="account-popup">
+    <div class="title">Your account has not been verified yet!</div>
+    <div class="text">If you did not receive the verification email when you registered, please check your spam folder.</div>
+    <div class="button">Send new email</div>
+    <div class="msg"></div>
+    <br style="clear:both">
+</div>
+
+<script>
+	
+	$('#account-popup .button').on('click', sendConfirmationEmail);
+	
+	function sendConfirmationEmail() {
+	    
+	    $('account-popup .button').off();
+	    
+	    $('#account-popup .button').addClass('disabled');
+	    $('#account-popup .msg').html('<img src="' + baseURL + 'assets/images/loader-verify-account.svg">');
+	    
+	    var ajax = $.ajax({
+	        type: 'POST',
+	        url: baseURL + 'ajax/settings/verify',
+	        data: {lang: language}
+	    })
+	    .done(function(data) {
+	    
+	        var json = jQuery.parseJSON(data);
+	        
+	        var msg = (json.status === 'pass') ? json.data.message : json.error.message;
+	        $('#account-popup .msg').html(msg);
+	        
+	        $('#account-popup .button').removeClass('disabled');
+	        
+	        $('account-popup .button').on('click', sendConfirmationEmail);
+
+	    })
+	    .fail(function() {
+			
+			$('account-popup .button').on('click', sendConfirmationEmail);
+			
+			$('#account-popup .button').removeClass('disabled');
+			$('#account-popup .msg').html('');
+			
+			console.log('fail to reach server');
+			
+	    });
+	    
+	}
+</script>                <div id="library">
+                    <div class="tabs"></div>
+                    <div id="library-alert">
+                        <div class="close" onclick="hideAlert()"></div>
+                        <div class="text"></div>
+                    </div>
+                    <div class="content-wrapper">
+                        <div id="tools">
+                            <div class="tool new-folder" onclick="insertNewFolder()">
+                                <div class="label">New Folder</div>
+                            </div>
+                            <div class="tool paste" onclick="paste()">
+                                <div class="label">Paste</div>
+                                <div class="qty"></div>
+                                <div class="cancel" onclick="cancelCut(event)"></div>
+                            </div>
+                            <div class="tool cut" onclick="cut()">
+                                <div class="label">Cut</div>
+                            </div>
+                            <div class="tool delete" onclick="moveTo(-1)">
+                                <div class="label">Delete</div>
+                            </div>
+                        </div>
+                        <div id="gallery">
+                            <div id="top-bar">
+                                <div id="hierarchy"><div class="folder" onclick="openFolder(0)">Mel0</div></div>
+                                <div id="library-button">
+                                    <div class="label">Recycle Bin</div>
+                                    <div class="icn bin"></div>
+                                </div>
+                            </div>
+                            <div id="gallery-content"><div id="folder-360474" class="item-wrapper"><div class="item" onmousedown="selectFile(event, &#39;360474&#39;, &#39;folder&#39;)" onmouseup="drop(360474)" ondblclick="openFolder(360474)" ontouchstart="preventZoom(event, &#39;folder&#39;, 360474)" onmouseover="highlightFolder(this, 360474, &#39;on&#39;)" onmouseout="highlightFolder(this, 360474, &#39;off&#39;)"><div class="update-name" onclick="showNameField(360474)"></div><div class="name" ondblclick="showNameField(360474, event)">Untitled Folder</div><div class="folder-icn"></div></div></div><div id="folder-360475" class="item-wrapper"><div class="item" onmousedown="selectFile(event, &#39;360475&#39;, &#39;folder&#39;)" onmouseup="drop(360475)" ondblclick="openFolder(360475)" ontouchstart="preventZoom(event, &#39;folder&#39;, 360475)" onmouseover="highlightFolder(this, 360475, &#39;on&#39;)" onmouseout="highlightFolder(this, 360475, &#39;off&#39;)"><div class="update-name" onclick="showNameField(360475)" style="display: none;"></div><div class="name" ondblclick="showNameField(360475, event)">Untitled Folder</div><div class="folder-icn"></div></div></div><div id="model-bJ2bxwKmvyB" class="item-wrapper"><div class="item" onmousedown="selectFile(event, &#39;bJ2bxwKmvyB&#39;, &#39;model&#39;)" ondblclick="MB.ModelWindow(&#39;bJ2bxwKmvyB&#39;)" ontouchstart="preventZoom(event, &#39;model&#39;, &#39;bJ2bxwKmvyB&#39;)"><div class="name"><div class="public"></div>Raft</div><div class="model-thumbnail" style="background-image:url(https://d1xez26aurxsp6.cloudfront.net/models/bJ2bxwKmvyB/thumbnails/690212ed87edc.png)"></div><div class="model-stats"><div class="cell side"><div class="value">0</div><div class="label">Views</div></div><div class="cell middle"><div class="value">0</div><div class="label">Likes</div></div><div class="cell side"><div class="value">0</div><div class="label">Com.</div></div></div></div></div><div id="model-KZvmyQA3vG6" class="item-wrapper selected"><div class="item" onmousedown="selectFile(event, &#39;KZvmyQA3vG6&#39;, &#39;model&#39;)" ondblclick="MB.ModelWindow(&#39;KZvmyQA3vG6&#39;)" ontouchstart="preventZoom(event, &#39;model&#39;, &#39;KZvmyQA3vG6&#39;)"><div class="name"><div class="public"></div>villan</div><div class="model-thumbnail" style="background-image:url(https://d1xez26aurxsp6.cloudfront.net/models/KZvmyQA3vG6/thumbnails/690212ee0ccbf.png)"></div><div class="model-stats"><div class="cell side"><div class="value">0</div><div class="label">Views</div></div><div class="cell middle"><div class="value">0</div><div class="label">Likes</div></div><div class="cell side"><div class="value">0</div><div class="label">Com.</div></div></div></div></div><div id="properties" style=""><div class="arrow-wrapper"><div class="arrow" style="left:810px"></div></div><div class="main"><div class="menu"><div class="button" id="button-properties" onclick="MODEL_WINDOW.changeScope(&#39;properties&#39;)"><div class="icn properties"></div>Properties</div><div class="button on" id="button-links" onclick="MODEL_WINDOW.changeScope(&#39;links&#39;)"><div class="icn model"></div>Links</div><div class="close" onclick="MODEL_WINDOW.clear()"></div></div><div class="data"><div id="window-properties" style="display: none;"><div class="row"><div class="label">Open to the public</div><div class="switch" id="switch-public" onclick="MODEL_WINDOW.togglePublicSwitch()"><div class="container"><div class="knob" style="left: -5px;"></div></div></div></div><div class="row"><div class="label">Type of model</div><div class="option" onclick="MODEL_WINDOW.selectType(&#39;minifig&#39;)"><div class="radio" id="radio-minifig"><div></div></div><div class="radio-label">LEGO minifig</div></div><div class="option" onclick="MODEL_WINDOW.selectType(&#39;set&#39;)"><div class="radio" id="radio-set"><div></div></div><div class="radio-label">LEGO set</div></div><div class="option" onclick="MODEL_WINDOW.selectType(&#39;moc&#39;)"><div class="radio checked" id="radio-moc"><div></div></div><div class="radio-label">MOC</div></div></div><div id="properties-set" class="properties-special" style="display: none;"><div class="row"><div class="label">Set reference</div><div class="input-text-wrapper"><input type="text" class="input-set" id="properties-set-ref"><div class="button-set" onclick="MODEL_WINDOW.getSetData()"></div></div><a href="http://brickset.com/sets" target="_blank"><span class="source">Brickset.com</span></a></div><div class="row"><div class="label">Set name</div><div class="text-value" id="properties-set-name"></div></div><div class="row"><div class="label">Year released</div><div class="text-value" id="properties-set-year"></div></div><div class="row"><div class="label">Theme</div><div class="text-value" id="properties-set-theme"></div></div></div><div id="properties-minifig" class="properties-special" style="display: none;"><div class="row"><div class="label">Minifig reference</div><div class="input-text-wrapper"><input type="text" class="input-set" id="properties-minifig-ref"><div class="button-set" onclick="MODEL_WINDOW.getMinifigData()"></div></div><a href="http://www.bricklink.com/catalogSearch.asp" target="_blank"><span class="source">Bricklink.com</span></a></div><div class="row"><div class="label">Minifig name</div><div class="text-value" id="properties-minifig-name"></div></div><div class="row"><div class="label">Theme</div><div class="text-value" id="properties-minifig-theme"></div></div></div><div id="properties-moc" class="properties-special" style="display: block;"><div class="row"><div class="label">Open in workshop</div><div class="switch" id="switch-workshop"><div class="container"><div class="knob" style="left: 44px;"></div></div></div></div><div class="row"><div class="label">MOC name</div><div class="input-text-wrapper"><input type="text" class="input" id="properties-moc-name"></div></div></div><div class="row"><div class="label">Description</div><div class="input-textarea-wrapper"><textarea id="properties-description"></textarea></div><br style="clear:both"></div><div class="row"><div class="label">Tags</div><div id="properties-tags"><input type="text" id="properties-new-tag" placeholder="Add tag…" autocomplete="off"><br style="clear:both"></div><br style="clear:both"></div><div class="properties-buttons"><div class="properties-button save" id="properties-save" onclick="MODEL_WINDOW.saveProperties()">Save</div><div class="properties-button cancel" onclick="MODEL_WINDOW.clear()">Cancel</div></div></div><div id="window-links" style="display: block;"><div class="row" style="border-bottom:0px"><div class="label">Workshop</div><div class="eye" onclick="MODEL_WINDOW.openModelInWorkshop()" title="Open selected revision in the workshop"></div><div class="select-wrapper-small"><select id="links-revisions"><option value="1">1</option></select></div><div class="links-revision">Revision :</div></div></div></div></div></div><div id="model-VyvnVXlYvl3" class="item-wrapper"><div class="item" onmousedown="selectFile(event, &#39;VyvnVXlYvl3&#39;, &#39;model&#39;)" ondblclick="MB.ModelWindow(&#39;VyvnVXlYvl3&#39;)" ontouchstart="preventZoom(event, &#39;model&#39;, &#39;VyvnVXlYvl3&#39;)"><div class="name"><div class="public"></div>weapon</div><div class="model-thumbnail" style="background-image:url(https://d1xez26aurxsp6.cloudfront.net/models/VyvnVXlYvl3/thumbnails/690212ee74ead.png)"></div><div class="model-stats"><div class="cell side"><div class="value">0</div><div class="label">Views</div></div><div class="cell middle"><div class="value">0</div><div class="label">Likes</div></div><div class="cell side"><div class="value">0</div><div class="label">Com.</div></div></div></div></div><br style="clear:both"></div>
+                        </div>
+                        <br style="clear:both">
+                    </div>
+                </div>
+            </div>
+            
+<footer>
+    <div class="center">
+    	<div id="footer-menu">
+    		<select id="footer-language">
+    			<option value="de">Deutsch</option>
+    			<option value="en" selected="">English</option>
+                <option value="es">Español</option>
+    			<option value="fr">Français</option>
+    			<option value="it">Italiano</option>
+    			<option value="pt">Português</option>
+    			<option value="ru">Pусский</option>
+                <option value="sv">Svenska</option>
+    		</select>
+    		<span>|</span>
+    		<a class="text-link" href="mailto:mecabricks@gmail.com">Contact Us</a>
+    		<span>|</span>
+    		<span id="footer-follow">Follow Mecabricks</span>
+    		<a href="https://twitter.com/Mecabricks" class="social sprite twitter" target="_blank"></a>
+    		<a href="https://www.facebook.com/mecabricks" class="social sprite facebook" target="_blank"></a>
+    		<a href="https://www.flickr.com/photos/mecabricks/" class="social sprite flickr" target="_blank"></a>
+    		<a href="https://www.instagram.com/mecabricks/" class="social sprite instagram" target="_blank"></a>
+    		<a href="http://www.youtube.com/Mecabricks" class="social sprite youtube" target="_blank"></a>
+    	</div>
+        <div id="footer-copyright">
+        	©2025 Mecabricks. All rights reserved.
+        	<br>LEGO®, the LEGO logo, the Minifigure, and the Brick and Knob configurations are trademarks of the LEGO Group of Companies which does not sponsor, authorize, or endorse this site.
+        </div>
+    </div>
+</footer>
+
+<script>
+	$(document).ready(function() {
+		$('#footer-language').on('change', setLang);
+	});
+	
+	function setLang() {
+		var newLang = $('#footer-language').val();
+		var pageURL = window.location.href;
+		var newPageURL = pageURL.replace('/en/', '/' + newLang + '/');
+        newPageURL = (newPageURL == pageURL) ? pageURL + newLang + '/' : newPageURL;
+               
+		window.location.replace(newPageURL);
+	}
+</script>    
+        </div>
+    
+</body></html>

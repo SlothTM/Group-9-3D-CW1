@@ -1,0 +1,1094 @@
+@import url("account.css");
+@import url("common.css");
+@import url("footer.css");
+@import url("header.css");
+
+body {
+    background: #d4dce4;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+#curtain {
+    background-color: rgba(0,0,0,0.7);
+    display: none;
+    left: 0px;
+    position: fixed;
+    top: 0px;
+    width: 100%;
+    z-index: 11000;
+}
+
+#curtain .spinner-wrapper {
+    background-color: rgba(0,0,0,0.7);
+    border-radius: 10px;
+    height: 165px;
+    margin: 0px auto 0px auto;
+    padding-top: 35px;
+    width: 200px;
+}
+
+#curtain .spinner {
+    background-image: url(../images/mylibrary-spinner.gif);
+    height: 75px;
+    margin: 0px 63px 0px 62px;
+    width: 75px;
+}
+
+#curtain .label {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 35px;
+    text-align: center;
+}
+
+#drag-icn {
+    background: #00C39E;
+    border-radius: 3px;
+    color: #fff;
+    display: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 3px 12px 3px 12px;
+    position: absolute;
+    z-index: 10000;
+}
+
+#global {
+    padding-bottom: 180px;   
+}
+
+#library {
+    margin: 40px auto 0px auto;
+    width: 1100px;
+}
+
+#library .tabs {
+    background-color: #14171b;
+    height: 10px;
+    width: 100%;
+}
+
+#library-alert {
+    background-color: #f9eabe;
+    border-bottom: 1px solid #f0e1b6;
+    display: none;
+    height: 49px;
+    width: 100%;
+}
+
+#library-alert .text {
+    color: #726a52;
+    font-size: 15px;
+    line-height: 49px;
+    margin-left: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 1034px;
+}
+
+#library-alert .close {
+    background: url(../images/mylibrary-sprite.png) 0px 0px;
+    cursor: pointer;
+    float: right;
+    height: 13px;
+    margin: 18px 17px 0px 0px;
+    width: 14px;
+}
+
+#library .content-wrapper {
+    background-color: #f4f4f1;
+    border-bottom: 10px solid #14171b;
+    width: 100%;
+}
+
+#tools {
+    float: left;
+    width: 120px;
+}
+
+#tools .tool {
+    color: #a9b2ba;
+    cursor: pointer;
+    border-bottom: 1px solid #e5e5e5;
+    height: 120px;
+    width: 120px;
+}
+
+#tools .tool:hover {
+    color: #bac1c8;
+}
+
+#tools .tool:active {
+    color: #90979e;
+}
+
+#tools .tool.new-folder {
+    background: url(../images/mylibrary-sprite.png) -20px 0px;
+}
+
+#tools .tool.new-folder:hover {
+    background: url(../images/mylibrary-sprite.png) -140px 0px;
+}
+
+#tools .tool.new-folder:active {
+    background: url(../images/mylibrary-sprite.png) -260px 0px;
+}
+
+#tools .tool.paste {
+    background: url(../images/mylibrary-sprite.png) -20px -120px;
+    display: none;
+    position: relative;
+}
+
+#tools .tool.paste:hover {
+    background: url(../images/mylibrary-sprite.png) -140px -120px;
+}
+
+#tools .tool.paste:active {
+    background: url(../images/mylibrary-sprite.png) -260px -120px;
+}
+
+#tools .tool.paste .qty {
+    color: #f4f4f1;
+    font-size: 11px;
+    font-weight: 600;
+    height: 16px;
+    left: 63px;
+    line-height: 16px;
+    position: absolute;
+    text-align: center;
+    top: 61px;
+    width: 22px;
+}
+
+#tools .tool.paste .cancel {
+    background: url(../images/mylibrary-sprite.png) 0px -580px;
+    height: 28px;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 28px;
+}
+
+#tools .tool.paste .cancel:hover {
+    background: url(../images/mylibrary-sprite.png) -30px -580px;
+}
+
+#tools .tool.paste .cancel:active {
+    background: url(../images/mylibrary-sprite.png) -60px -580px;
+}
+
+#tools .tool.cut {
+    background: url(../images/mylibrary-sprite.png) -20px -360px;
+}
+
+#tools .tool.cut:hover {
+    background: url(../images/mylibrary-sprite.png) -140px -360px;
+}
+
+#tools .tool.cut:active {
+    background: url(../images/mylibrary-sprite.png) -260px -360px;
+}
+
+#tools .tool.delete {
+    background: url(../images/mylibrary-sprite.png) -20px -240px;
+}
+
+#tools .tool.delete:hover {
+    background: url(../images/mylibrary-sprite.png) -140px -240px;
+}
+
+#tools .tool.delete:active {
+    background: url(../images/mylibrary-sprite.png) -260px -240px;
+}
+
+#tools .tool .label {
+    font-size: 16px;
+    font-weight: 600;
+    padding-top: 80px;
+    text-align: center;
+    width: 120px;
+}
+
+#gallery {
+    background-color: #f7f7f4;
+    border-left: 1px solid #e5e5e5;
+    float: left;
+    min-height: 500px;
+    width: 979px;
+}
+
+#top-bar {
+    background-color: #a9b2ba;
+    height: 40px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+#hierarchy {
+    height: 40px;
+    margin-left: 15px;
+}
+
+#hierarchy .folder {
+    color: #fff;
+    cursor: pointer;
+    float: left;
+    font-size: 14px;
+    font-weight: 600;
+    height: 40px;
+    line-height: 40px;
+}
+
+#hierarchy .folder:hover {
+    text-decoration: underline;
+}
+
+#hierarchy .arrow {
+    background: url(../images/mylibrary-sprite.png) -80px -480px;
+    cursor: default;
+    float: left;
+    height: 40px;
+    width: 30px;
+}
+
+#library-button {
+    background: #90979e;
+    cursor: pointer;
+    height: 40px;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+}
+
+#library-button:hover {
+    background: #98a1a9;
+    transition: all 0.2s ease-out;
+    -webkit-transition: all 0.2s ease-out;
+    -moz-transition: all 0.2s ease-out;
+    -ms-transition: all 0.2s ease-out;
+    -o-transition: all 0.2s ease-out;
+}
+
+#library-button:active {
+    background: #7e8489;
+}
+
+#library-button .label {
+    color: #fff;
+    float: left;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 40px;
+    padding-left: 12px;
+}
+
+#library-button .icn {
+    float: left;
+}
+
+#library-button .bin {
+    background: url(../images/mylibrary-sprite.png) 0px -480px;
+    height: 40px;
+    width: 40px;
+}
+
+#library-button .lib {
+    background: url(../images/mylibrary-sprite.png) -40px -480px;
+    height: 40px;
+    width: 40px;
+}
+
+#gallery-content {
+    padding-bottom: 24px;
+    width: 100%;
+}
+
+#gallery-content .item-wrapper {
+    border-radius: 7px;
+    float: left;
+    height: 197px;
+    margin: 24px 0px 0px 24px;
+    padding: 5px 5px 5px 5px;
+    width: 205px;
+}
+
+#gallery-content .item-wrapper.selected {
+    background-color: #FE9900;
+}
+
+#gallery-content .item-wrapper.drop {
+    background-color: #00C39E;
+}
+
+#gallery-content .item {
+    background: #34495e;
+    border-radius: 5px;
+    cursor: pointer;
+    height: 197px;
+    overflow: hidden;
+    position: relative;
+    width: 205px;
+}
+
+#gallery-content .item .name {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    height: 31px;
+    line-height: 31px;
+    overflow: hidden;
+    padding-left: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 185px;
+}
+
+#gallery-content .item .name .public {
+    background: url(../images/mylibrary-sprite.png) 0px -560px;
+    float: right;
+    height: 16px;
+    margin-top: 7px;
+    width: 12px
+}
+
+#gallery-content .item .name .official {
+    background: url(../images/mylibrary-sprite.png) -20px -560px;
+    float: right;
+    height: 16px;
+    margin-top: 7px;
+    width: 16px
+}
+
+#gallery-content .item .name .awaiting-approval {
+    background: url(../images/mylibrary-sprite.png) -40px -560px;
+    float: right;
+    height: 16px;
+    margin-top: 7px;
+    width: 16px
+}
+
+#gallery-content .item .update-name {
+    background: #34495e url(../images/mylibrary-sprite.png) 0px -520px;
+    display: none;
+    height: 26px;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    width: 21px;
+}
+
+#gallery-content .item .input-name {
+    background-color: #fff;
+    color: #34495e;
+    font-family: Open Sans;
+    font-size: 13px;
+    font-weight: 600;
+    height: 21px;
+    padding: 0px 2px 0px 2px;
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    width: 191px;
+}
+
+#gallery-content .item .folder-icn {
+    background: #ecf0f1 url(../images/mylibrary-sprite.png) -110px -480px;
+    height: 161px;
+    margin-left: 5px;
+    width: 195px;
+}
+
+#gallery-content .item .model-thumbnail {
+    background-color: #ecf0f1;
+    background-size: cover;
+    height: 122px;
+    margin-left: 5px;
+    width: 195px;
+}
+
+#gallery-content .item-wrapper.selected .folder-icn,
+#gallery-content .item-wrapper.selected .model-thumbnail {
+    background-color: #f5e2b3;
+}
+
+#gallery-content .item-wrapper.drop .folder-icn {
+    background-color: #b1f4e7;
+}
+
+#gallery-content .item .model-stats {
+    height: 44px;
+    width: 100%;
+}
+
+#gallery-content .item .model-stats .cell {
+    color: #fff;
+    float: left;
+    font-weight: 600;
+    height: 44px;
+}
+
+#gallery-content .item .model-stats .cell.side {
+    width: 68px;
+}
+
+#gallery-content .item .model-stats .cell.middle {
+    border-left: 1px solid #415971;
+    border-right: 1px solid #415971;
+    width: 67px;
+}
+
+#gallery-content .item .model-stats .value {
+    font-size: 15px;
+    line-height: 15px;
+    margin-top: 7px;
+    text-align: center;
+}
+
+#gallery-content .item .model-stats .label {
+    font-size: 11px;
+    text-align: center;
+}
+
+#properties {
+    float: left;
+    margin-left: 29px;
+    margin-top: 10px;
+    padding-bottom: 5px;
+}
+
+#properties .arrow-wrapper {
+    height: 9px;
+    position: relative;
+    width: 922px;
+}
+
+#properties .arrow {
+    background: url(../images/mylibrary-sprite.png) 0px -620px;
+    height: 9px;
+    position: absolute;
+    top: 0px;
+    width: 19px;
+}
+
+#properties .main {
+    background: #34495e;
+    border-radius: 5px;
+    padding: 10px;
+    width: 902px;
+}
+
+#properties .main .menu {
+    height: 30px;
+    margin-bottom: 10px;
+    position: relative;
+    width: 902px;
+}
+
+#properties .main .button {
+    border-radius: 3px;
+    color: #ecf0f1;
+    cursor: pointer;
+    float: left;
+    font-size: 13px;
+    font-weight: 600;
+    height: 30px;
+    line-height: 30px;
+    margin-right: 10px;
+    padding: 0px 10px 0px 7px;
+}
+
+#properties .main .button:hover {
+    background: #3C5A78;
+    transition: all 0.1s ease-out;
+    -webkit-transition: all 0.1s ease-out;
+    -moz-transition: all 0.1s ease-out;
+    -ms-transition: all 0.1s ease-out;
+    -o-transition: all 0.1s ease-out;
+}
+
+#properties .main .button:active {
+    background: #293D51;
+}
+
+#properties .main .button.on {
+    background: #3498db;
+}
+
+#properties .main .button .icn { 
+    float: left;
+    height: 16px;
+    margin-right: 10px;
+    margin-top: 7px;
+    width: 16px;
+}
+
+#properties .main .button .icn.properties {
+    background: url(../images/mylibrary-sprite.png) 0px -640px; 
+}
+
+#properties .main .button .icn.model {
+    background: url(../images/mylibrary-sprite.png) -30px -640px; 
+}
+
+#properties .main .close {
+    background: url(../images/mylibrary-sprite.png) -30px -620px;
+    cursor: pointer;
+    height: 16px;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 16px;
+}
+
+#properties .main .close:hover {
+    transition: all 0.1s ease-out;
+    -webkit-transition: all 0.1s ease-out;
+    -moz-transition: all 0.1s ease-out;
+    -ms-transition: all 0.1s ease-out;
+    -o-transition: all 0.1s ease-out;
+}
+
+#properties .main .close:active {
+    top: 2px;
+}
+
+#properties .main .data {
+    background: #ecf0f1;
+    border-radius: 4px;
+    width: 902px;
+}
+
+#properties .main .row {
+    border-bottom: 1px solid #dce1e5;
+    min-height: 50px;
+}
+
+#properties .main .row .label {
+    color: #34495e;
+    float: left;
+    font-size: 16px;
+    font-weight: 600;
+    height: 50px;
+    line-height: 50px;
+    margin: 0px 10px;
+}
+
+#properties .main .row .source {
+    background-color: #34495e;
+    border-radius: 3px;
+    color: #fff;
+    display: inline-block;
+    float: right;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 30px;
+    margin: 10px 10px 0px 0px;
+    padding: 0px 10px;
+    height: 30px;
+}
+
+#properties .main .row.disabled .label {
+    color: #a9b2ba;
+}
+
+#properties .main .row .switch {
+    background-color: #34495e;
+    border-radius: 5px;
+    cursor: pointer;
+    float: right;
+    height: 30px;
+    margin: 10px 10px 10px 10px;
+    width: 80px;
+}
+
+#properties .main .row.disabled .switch {
+    background-color: #a9b2ba;
+    cursor: default;
+}
+
+#properties .main .row .switch .container {
+    background: url(../images/mylibrary-sprite.png) 0px -670px;
+    border-radius: 2px;
+    height: 24px;
+    margin: 3px;
+    overflow: hidden;
+    position: relative;
+    width: 74px;
+}
+
+#properties .main .row .switch .knob {
+    background-color: #f7f7f4;
+    border-left: 5px solid #34495e;
+    border-right: 7px solid #34495e;
+    height: 24px;
+    position: absolute;
+    top: 0px;
+    width: 25px;
+}
+
+#properties .main .row.disabled .switch .knob {
+    border-left: 5px solid #a9b2ba;
+    border-right: 7px solid #a9b2ba;
+}
+
+#properties .main .row .option {
+    cursor: pointer;
+    float: right;
+    height: 50px;
+    margin: 0px 10px 0px 40px;
+}
+
+#properties .main .row.disabled .option {
+    cursor: default;
+}
+
+#properties .main .row .option .radio {
+    background-color: #34495e;
+    border-radius: 10px;
+    float: left;
+    height: 20px;
+    margin: 15px 10px 0px 0px;
+    width: 20px;
+}
+
+#properties .main .row.disabled .option .radio {
+    background-color: #a9b2ba;
+}
+
+#properties .main .row .option .radio div {
+    background-color: #f7f7f4;
+    border: 3px solid #f7f7f4;
+    border-radius: 100%;
+    height: 6px;
+    margin: 4px;
+    width: 6px;
+}
+
+#properties .main .row .option .radio.checked div {
+    background-color: #34495e;
+}
+
+#properties .main .row.disabled .option .radio.checked div {
+    background-color: #a9b2ba;
+}
+
+#properties .main .row .option .radio-label {
+    color: #34495e;
+    float: left;
+    font-size: 14px;
+    font-weight: 400;
+    height: 50px;
+    line-height: 50px;
+}
+
+#properties .main .row.disabled .option .radio-label {
+    color: #a9b2ba;
+}
+
+#properties .main .row .text-value {
+    color: #34495e;
+    height: 50px;
+    float: right;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 50px;
+    margin-right: 10px;
+    max-width: 484px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#properties .main .row.disabled .text-value {
+    color: #a9b2ba;
+}
+
+#properties .main .row .theme {
+    float: left;
+}
+
+#properties .main .row .theme-arrow {
+    background: url(../images/mylibrary-sprite.png) -60px -620px;
+    float: left;
+    height: 10px;
+    margin: 20px 8px 0px 10px;
+    width: 6px;
+}
+
+#properties .main .row.disabled .theme-arrow {
+    background: url(../images/mylibrary-sprite.png) -70px -620px;
+}
+
+#properties .main .row .input-text-wrapper,
+#properties .main .row .select-wrapper {
+    background-color: #34495e;
+    border-radius: 5px;
+    float: right;
+    height: 34px;
+    margin: 5px 10px 0px 0px;
+    overflow: hidden;
+    padding: 3px;
+    width: 229px;
+}
+
+#properties .main .row .select-wrapper {
+    background: #34495e url(../images/mylibrary-sprite.png) 0px -700px;
+}
+
+#properties .main .row.disabled .select-wrapper {
+    background: #a9b2ba url(../images/mylibrary-sprite.png) -240px -700px;
+}
+
+#properties .main .row.disabled .input-text-wrapper {
+    background-color: #a9b2ba;
+}
+
+#properties .main .row .input-set {
+    background-color: #f7f7f4;
+    border: none;
+    border-bottom-left-radius: 2px;
+    border-top-left-radius: 2px;
+    color: #34495e;
+    font-family: Open Sans;
+    height: 34px;
+    font-size: 14px;
+    font-weight: 400;
+    margin: 0px;
+    padding: 0px 10px 0px 10px;
+    width: 167px;
+}
+
+#properties .main .row.disabled .input-set {
+    color: #a9b2ba;
+}
+
+#properties .main .row .input {
+    background-color: #f7f7f4;
+    border: none;
+    border-radius: 2px;
+    color: #34495e;
+    font-family: Open Sans;
+    font-size: 14px;
+    font-weight: 400;
+    height: 34px;
+    margin: 0px;
+    padding: 0px 10px 0px 10px;
+    width: 209px;
+}
+
+#properties .main .row.disabled .input {
+    color: #a9b2ba;
+}
+
+#properties .main .row .button-set {
+    background: url(../images/mylibrary-sprite.png) -70px -660px;
+    border-bottom-right-radius: 2px;
+    border-top-right-radius: 2px;
+    cursor: pointer;
+    height: 34px;
+    float: right;
+    margin-left: 3px;
+    width: 39px;
+}
+
+#properties .main .row.disabled .button-set {
+    cursor: default;
+}
+
+#properties .main .row .input-textarea-wrapper {
+    background-color: #34495e;
+    border-radius: 5px;
+    float: right;
+    height: 120px;
+    margin: 5px 10px 5px 0px;
+    padding: 3px;
+    width: 478px;
+}
+
+#properties .main .row.disabled .input-textarea-wrapper {
+    background-color: #a9b2ba;
+}
+
+#properties .main .row textarea {
+    background-color: #f7f7f4;
+    border: none;
+    border-radius: 2px;
+    color: #34495e;
+    font-family: Open Sans;
+    font-size: 14px;
+    font-weight: 400;
+    height: 110px;
+    margin: 0px;
+    overflow: auto;
+    padding: 5px 10px;
+    resize: none;
+    width: 458px;
+}
+
+#properties .main .row.disabled textarea {
+    color: #a9b2ba;
+}
+
+#window-properties select {
+    background-color: transparent;
+    border: 0;
+    border-radius: 0;
+    color: #34495e;
+    cursor: pointer;
+    font-family: Open Sans;
+    font-size: 14px;
+    font-weight: 400;
+    height: 34px;
+    padding: 5px 10px;
+    vertical-align: middle;
+    width: 260px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+#window-properties select option {
+    background: white;
+}
+
+#properties .main .row.disabled select {
+    color: #a9b2ba;
+}
+
+#properties-tags {
+    float: right;
+    margin-right: 10px;
+    margin-top: 10px;
+    width: 495px;
+}
+
+#properties-tags .tag {
+    background-color: #34495e;
+    border-radius: 3px;
+    color: #fff;
+    float: left;
+    font-size: 12px;
+    font-weight: 600;
+    height: 30px;
+    line-height: 30px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    padding: 0px 10px;
+}
+
+#properties .main .row.disabled .tag {
+    background-color: #a9b2ba;
+}
+
+#properties .main .row.disabled .tag .del {
+    cursor: default;
+}
+
+#properties-tags .tag .del {
+    background: url(../images/mylibrary-sprite.png) -70px -760px;
+    cursor: pointer;
+    float: right;
+    height: 11px;
+    margin-left: 10px;
+    margin-top: 9px;
+    width: 10px;
+}
+
+#properties-new-tag {
+    background: none;
+    border: none;
+    color: #34495e;
+    font-family: Open Sans;
+    font-size: 12px;
+    font-weight: 400;
+    height: 30px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    padding: 0px;
+    width: 150px;
+}
+
+#properties-new-tag::-webkit-input-placeholder  {
+    color: #a9b2ba;
+}
+
+#properties-new-tag::-moz-placeholder {
+    color: #a9b2ba;
+}
+
+#properties-new-tag:-ms-input-placeholder {
+    color: #a9b2ba;
+}
+
+#window-properties .properties-buttons {
+    height: 85px;
+}
+
+#window-properties .properties-button {
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+    float: right;
+    font-size: 15px;
+    font-weight: 600;
+    height: 45px;
+    line-height: 45px;
+    margin: 20px 10px 20px 5px;
+    text-align: center;
+    width: 235px;
+}
+
+#window-properties .properties-button.cancel {
+    background-color: #a9b2ba;
+}
+
+#window-properties .properties-button.cancel:hover {
+    background-color: #bac1c8;
+    transition: all 0.2s ease-out;
+    -webkit-transition: all 0.2s ease-out;
+    -moz-transition: all 0.2s ease-out;
+    -ms-transition: all 0.2s ease-out;
+    -o-transition: all 0.2s ease-out;
+}
+
+#window-properties .properties-button.cancel:active {
+    background-color: #90979e;
+}
+
+#window-properties .properties-button.save {
+    background-color: #3498db;
+}
+
+#window-properties .properties-button.save:hover {
+    background-color: #5dade2;
+    transition: all 0.2s ease-out;
+    -webkit-transition: all 0.2s ease-out;
+    -moz-transition: all 0.2s ease-out;
+    -ms-transition: all 0.2s ease-out;
+    -o-transition: all 0.2s ease-out;
+}
+
+#window-properties .properties-button.save:active {
+    background-color: #2c81ba;
+}
+
+#window-properties .properties-button.save.btn-disabled {
+    background-color: #a9b2ba;
+    cursor: default;
+}
+
+#window-links {
+    display: none;
+}
+
+#window-links .eye {
+    background: #34495e url(../images/mylibrary-sprite.png) 0px -750px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+    float: right;
+    height: 40px;
+    margin: 5px 10px;
+    width: 40px;
+}
+
+#window-links .bin {
+    background: #34495e url(../images/mylibrary-sprite.png) -100px -750px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+    float: right;
+    height: 40px;
+    margin: 5px 0px 5px 10px;
+    width: 40px;
+}
+
+#window-links .eye:hover,
+#window-links .bin:hover {
+    background-color: #3C5A78;
+    transition: all 0.2s ease-out;
+    -webkit-transition: all 0.2s ease-out;
+    -moz-transition: all 0.2s ease-out;
+    -ms-transition: all 0.2s ease-out;
+    -o-transition: all 0.2s ease-out;
+}
+
+#properties .eye:active {
+    background-color: #293D51;
+}
+
+#properties .main .row .link-wrapper {
+    background-color: #34495e;
+    border-radius: 5px;
+    float: right;
+    height: 34px;
+    margin-top: 5px;
+    overflow: hidden;
+    padding: 3px;
+    width: 408px;
+}
+
+#properties .main .row .link {
+    background-color: #f7f7f4;
+    border: none;
+    border-radius: 2px;
+    color: #34495e;
+    font-family: Open Sans;
+    font-size: 14px;
+    font-weight: 400;
+    height: 34px;
+    margin: 0px;
+    padding: 0px 10px 0px 10px;
+    width: 388px;
+}
+
+#properties .main .row .select-wrapper-small {
+    background: #34495e url(../images/mylibrary-sprite.png) 0px -800px;
+    border-radius: 5px;
+    float: right;
+    height: 34px;
+    margin-top: 5px;
+    overflow: hidden;
+    padding: 3px;
+    width:79px;
+}
+
+#window-links select {
+    background-color: transparent;
+    border: 0;
+    border-radius: 0;
+    color: #34495e;
+    cursor: pointer;
+    font-family: Open Sans;
+    font-size: 14px;
+    font-weight: 400;
+    height: 34px;
+    padding: 5px 10px;
+    vertical-align: middle;
+    width: 110px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+#window-links select option {
+    background: white;
+}
+
+#properties .main .row .links-revision {
+    color: #34495e;
+    float: right;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 50px;
+    margin-right: 8px;
+}

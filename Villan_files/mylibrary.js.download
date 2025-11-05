@@ -1,0 +1,1549 @@
+var MB = MB || {};
+
+/**
+ * Initialise js
+ */
+function init() {
+  window.addEventListener("keydown", onDocumentKeyDown, false);
+  window.addEventListener("mousedown", deselectFiles, false);
+  window.addEventListener("resize", resizeWindow, false);
+  openFolder(0);
+  $("#tools .tool").mousedown(function (event) {
+    event.stopPropagation();
+  });
+  $("#tools .tool.paste .cancel")
+    .mouseover(function () {
+      $("#tools .tool.paste").css({
+        "background-position": "-20px -120px",
+        color: "#a9b2ba",
+      });
+    })
+    .mouseout(function () {
+      $("#tools .tool.paste").css({
+        "background-position": "",
+        color: "",
+      });
+    });
+  preloadImg(
+    PATH + "assets/images/mylibrary-spinner.gif",
+    PATH + "assets/images/account-loader.gif"
+  );
+}
+
+/**
+ * Manage Keyboard
+ */
+function onDocumentKeyDown(event) {
+  var key = event.keyCode;
+  var shiftPressed = event.shiftKey;
+  var ctrlPressed = false;
+  if (event.ctrlKey || event.metaKey) var ctrlPressed = true;
+
+  if (key === 13) {
+    if (FIELDS.folderName) {
+      $("#gallery-content .input-name").blur();
+    } else if (FIELDS.setRef) {
+      MODEL_WINDOW.getSetData();
+    } else if (FIELDS.minifigRef) {
+      MODEL_WINDOW.getMinifigData();
+    } else if (FIELDS.tag) {
+      $("#properties-new-tag").blur();
+    }
+  } else if (key === 8 || key === 46) {
+    if (!isATextFieldFocused()) event.preventDefault();
+
+    if (!isATextFieldFocused() && !BIN) {
+      event.stopPropagation();
+      moveTo(-1);
+    }
+  } else if (key === 88) {
+    if (ctrlPressed && !isATextFieldFocused()) {
+      event.preventDefault();
+      cut();
+    }
+  } else if (key === 67) {
+    if (ctrlPressed && !isATextFieldFocused()) {
+      event.preventDefault();
+      cut();
+    }
+  } else if (key === 86) {
+    if (ctrlPressed && !isATextFieldFocused()) {
+      event.preventDefault();
+      paste();
+    }
+  }
+}
+
+/**
+ * Resize window
+ */
+function resizeWindow() {
+  var windowHeight = $(window).height();
+
+  if ($("#curtain").css("display") == "block") {
+    var spinnerTop = Math.round((windowHeight - 200) / 3);
+    $("#curtain .spinner-wrapper").css("margin-top", spinnerTop + "px");
+    $("#curtain").css("height", windowHeight + "px");
+  }
+}
+
+/**
+ * Detect if a text field is on focus
+ */
+function isATextFieldFocused() {
+  for (var i in FIELDS) {
+    if (FIELDS[i]) return true;
+  }
+
+  return false;
+}
+
+/**
+ * Show Alert
+ */
+function displayAlert(text) {
+  $("html, body").animate({ scrollTop: 0 }, 100);
+
+  if ($("#library-alert").is(":hidden")) {
+    $("#library-alert .text").html(text);
+    $("#library-alert").slideDown(300);
+  } else {
+    $("#library-alert").slideUp(300, function () {
+      displayAlert(text);
+    });
+  }
+}
+
+/**
+ * Hide Alert
+ */
+function hideAlert() {
+  if ($("#library-alert").is(":visible")) {
+    $("#library-alert").slideUp(300);
+  }
+}
+
+/**
+ * Load folder content
+ */
+function openFolder(folderId, reloadImg) {
+  var reloadImg = reloadImg !== undefined ? reloadImg : true;
+
+  //if (AJAX.LOAD_FOLDER) return false;
+
+  displaySpinner(LANG_LOADING);
+
+  AJAX.LOAD_FOLDER = true;
+
+  var ajax = $.ajax({
+    type: "POST",
+    url: PATH + "ajax/mylibrary/readfolder",
+    data: {
+      lang: LANG,
+      folderId: folderId,
+    },
+  })
+    .done(function (data) {
+      var JSON = jQuery.parseJSON(data);
+      var data = JSON.data;
+
+      if (JSON.status === "pass") {
+        FOLDER_ID = folderId;
+
+        // Properties
+        if (MODEL_WINDOW) MODEL_WINDOW.clear();
+
+        // Files
+        FILES = [];
+        FILES_SELECTED = [];
+
+        // Library type
+        $("#library-button").unbind("click");
+        if (data.bin) {
+          $("#library-button .icn").removeClass("bin").addClass("lib");
+          $("#library-button .label").html(LANG_ROOT);
+          $("#library-button").click(function () {
+            openFolder(0);
+          });
+        } else {
+          $("#library-button .icn").removeClass("lib").addClass("bin");
+          $("#library-button .label").html(LANG_BIN);
+          $("#library-button").click(function () {
+            openFolder(-1);
+          });
+        }
+        //Recycle bin
+        BIN = data.bin;
+        var binTool = $("#tools .delete .label");
+        binTool.unbind("click");
+        if (BIN) {
+          binTool.html(LANG_EMPTY_BIN);
+          binTool.click(function () {
+            emptyRecycleBin();
+          });
+        } else {
+          binTool.html(LANG_DELETE);
+          binTool.click(function () {
+            moveTo(-1);
+          });
+        }
+
+        // Hierarchy
+        var hierarchy = "";
+        for (var i = 0; i < data.hierarchy.length; i++) {
+          if (i > 0) hierarchy += '<div class="arrow"></div>';
+          hierarchy +=
+            '<div class="folder" onClick="openFolder(' +
+            data.hierarchy[i].id +
+            ')">';
+          hierarchy += data.hierarchy[i].name;
+          hierarchy += "</div>";
+        }
+        $("#hierarchy").html(hierarchy);
+
+        // Content
+        var content = "";
+        for (var i = 0; i < data.content.length; i++) {
+          var item = {};
+          item.id = data.content[i].id;
+          item.type = data.content[i].type;
+          FILES.push(item);
+
+          var itemId = data.content[i].type + "-" + data.content[i].id;
+
+          content += '<div id="' + itemId + '" class="item-wrapper">';
+          content += '<div class="item"';
+          content +=
+            " onmousedown=\"selectFile(event, '" +
+            item.id +
+            "', '" +
+            item.type +
+            "')\"";
+          if (data.content[i].type == "folder") {
+            content += ' onmouseup="drop(' + data.content[i].id + ')"';
+            content += ' ondblclick="openFolder(' + data.content[i].id + ')"';
+            content +=
+              " ontouchstart=\"preventZoom(event, 'folder', " +
+              data.content[i].id +
+              ')"';
+            content +=
+              ' onmouseover="highlightFolder(this, ' +
+              data.content[i].id +
+              ", 'on')\"";
+            content +=
+              ' onmouseout="highlightFolder(this, ' +
+              data.content[i].id +
+              ", 'off')\"";
+          } else if (data.content[i].type == "model") {
+            content +=
+              " ondblclick=\"MB.ModelWindow('" + data.content[i].id + "')\"";
+            content +=
+              " ontouchstart=\"preventZoom(event, 'model', '" +
+              data.content[i].id +
+              "')\"";
+          }
+          content += ">";
+          if (data.content[i].type == "folder") {
+            content +=
+              '<div class="update-name" onclick="showNameField(' +
+              data.content[i].id +
+              ')"></div>';
+            content +=
+              '<div class="name" ondblclick="showNameField(' +
+              data.content[i].id +
+              ', event)">' +
+              htmlspecialchars(data.content[i].name) +
+              "</div>";
+          } else if (data.content[i].type == "model") {
+            content += '<div class="name">';
+            if (!data.content[i].public) {
+              content += '<div class="public"></div>';
+            } else if (data.content[i].official) {
+              content += '<div class="official"></div>';
+            }
+            content += htmlspecialchars(data.content[i].name);
+            content += "</div>";
+          }
+
+          if (data.content[i].type == "folder") {
+            content += '<div class="folder-icn"></div>';
+          } else if (data.content[i].type == "model") {
+            content += '<div class="model-thumbnail"';
+            content += ` style="background-image:url(${
+              data.content[i].thumbnail ?? ""
+            })">`;
+            content += "</div>";
+            content += '<div class="model-stats">';
+            content += '<div class="cell side">';
+            content +=
+              '<div class="value">' +
+              number_format(
+                data.content[i].views,
+                0,
+                LANG_DEC_SEPARATOR,
+                LANG_THOUSANDS_SEP
+              ) +
+              "</div>";
+            content += '<div class="label">' + LANG_VIEWS + "</div>";
+            content += "</div>";
+            content += '<div class="cell middle">';
+            content +=
+              '<div class="value">' +
+              number_format(
+                data.content[i].likes,
+                0,
+                LANG_DEC_SEPARATOR,
+                LANG_THOUSANDS_SEP
+              ) +
+              "</div>";
+            content += '<div class="label">' + LANG_LIKES + "</div>";
+            content += "</div>";
+            content += '<div class="cell side">';
+            content +=
+              '<div class="value">' +
+              number_format(
+                data.content[i].comments,
+                0,
+                LANG_DEC_SEPARATOR,
+                LANG_THOUSANDS_SEP
+              ) +
+              "</div>";
+            content += '<div class="label">' + LANG_COMMENTS + "</div>";
+            content += "</div>";
+            content += "</div>";
+          }
+          content += "</div>";
+          content += "</div>";
+        }
+        content += '<br style="clear:both">';
+        $("#gallery-content").html(content);
+
+        // Bind event to display/hide name update icon for folders
+        for (var i = 0; i < data.content.length; i++) {
+          if (data.content[i].type == "folder") {
+            $("#folder-" + data.content[i].id).bind(
+              "mouseenter mouseleave",
+              {
+                id: data.content[i].id,
+              },
+              function (event) {
+                if (event.type == "mouseenter") {
+                  if (!DRAG) {
+                    $("#folder-" + event.data.id + " .update-name").css(
+                      "display",
+                      "block"
+                    );
+                  }
+                } else {
+                  $("#folder-" + event.data.id + " .update-name").css(
+                    "display",
+                    "none"
+                  );
+                }
+              }
+            );
+          }
+        }
+      } else {
+        displayAlert(JSON.error.message);
+      }
+
+      AJAX.LOAD_FOLDER = false;
+      hideSpinner();
+    })
+    .fail(function () {
+      displayAlert(LANG_ERROR);
+      AJAX.LOAD_FOLDER = false;
+      hideSpinner();
+    });
+}
+
+/**
+ * Select a file in the folder
+ */
+function selectFile(ev, id, type) {
+  ev.stopPropagation();
+
+  var shiftPressed = ev.shiftKey;
+  var ctrlPressed = ev.ctrlKey;
+  if (navigator.appVersion.indexOf("Mac") != -1) ctrlPressed = ev.metaKey;
+
+  if (!shiftPressed && !ctrlPressed) {
+    if (!isFileSelected(id, type)) {
+      $("#gallery-content .selected").removeClass("selected");
+      FILES_SELECTED = [{ id: id, type: type }];
+      $("#" + type + "-" + id).addClass("selected");
+
+      startDrag(false);
+    } else {
+      startDrag(true, id, type);
+    }
+  } else if (ctrlPressed) {
+    if (isFileSelected(id, type)) {
+      var index = FILES_SELECTED.indexOf(getFileSelected(id, type));
+      FILES_SELECTED.splice(index, 1);
+      $("#" + type + "-" + id).removeClass("selected");
+    } else {
+      FILES_SELECTED.push({ id: id, type: type });
+      $("#" + type + "-" + id).addClass("selected");
+    }
+  } else if (shiftPressed) {
+    if (FILES_SELECTED.length <= 0) {
+      var fileReached = false;
+      for (var i = 0; i < FILES.length; i++) {
+        if (!fileReached) {
+          var file = getFile(FILES[i].id, FILES[i].type);
+          FILES_SELECTED.push(file);
+
+          $("#" + file.type + "-" + file.id).addClass("selected");
+
+          if (file.id == id && file.type == type) fileReached = true;
+        }
+      }
+    } else {
+      var lastFileSelected = FILES_SELECTED[FILES_SELECTED.length - 1];
+      var indexOfLastFileSelected = FILES.indexOf(
+        getFile(lastFileSelected.id, lastFileSelected.type)
+      );
+      var indexOfFileSelected = FILES.indexOf(getFile(id, type));
+
+      var start =
+        indexOfLastFileSelected < indexOfFileSelected
+          ? indexOfLastFileSelected
+          : indexOfFileSelected;
+      var end =
+        indexOfLastFileSelected < indexOfFileSelected
+          ? indexOfFileSelected
+          : indexOfLastFileSelected;
+
+      var selection = FILES.slice(start, end + 1);
+
+      for (var i = 0; i < selection.length; i++) {
+        if (!isFileSelected(selection[i].id, selection[i].type)) {
+          FILES_SELECTED.push(selection[i]);
+          $("#" + selection[i].type + "-" + selection[i].id).addClass(
+            "selected"
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Deselect a file of the folder
+ */
+function deselectFiles() {
+  $("#gallery-content .selected").removeClass("selected");
+  FILES_SELECTED = [];
+}
+
+/**
+ * Is a file already selected
+ */
+function isFileSelected(id, type) {
+  for (var i = 0; i < FILES_SELECTED.length; i++) {
+    if (FILES_SELECTED[i].id == id && FILES_SELECTED[i].type == type) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Get file from the master list
+ */
+function getFile(id, type) {
+  for (var i = 0; i < FILES.length; i++) {
+    if (FILES[i].id == id && FILES[i].type == type) {
+      return FILES[i];
+    }
+  }
+}
+
+/**
+ * Get file from the selected list
+ */
+function getFileSelected(id, type) {
+  for (var i = 0; i < FILES_SELECTED.length; i++) {
+    if (FILES_SELECTED[i].id == id && FILES_SELECTED[i].type == type) {
+      return FILES_SELECTED[i];
+    }
+  }
+}
+
+/**
+ * Enable file dragging
+ */
+function startDrag(useTimeout, id, type) {
+  if (DRAG_ENABLED) {
+    DRAG = true;
+
+    window.addEventListener("mousemove", drag, false);
+    window.addEventListener("mouseup", endDrag, false);
+
+    if (useTimeout) {
+      clearTimeout(START_DRAG_TIMEOUT);
+      START_DRAG_TIMEOUT = setTimeout(function () {
+        $("#gallery-content .selected").removeClass("selected");
+        FILES_SELECTED = [{ id: id, type: type }];
+        $("#" + type + "-" + id).addClass("selected");
+        $("#drag-icn").html(FILES_SELECTED.length);
+      }, 500);
+    }
+
+    $("#drag-icn").html(FILES_SELECTED.length);
+  }
+}
+
+/**
+ * Drag files
+ */
+function drag(event) {
+  var mouse = { x: event.pageX, y: event.pageY };
+
+  clearTimeout(START_DRAG_TIMEOUT);
+
+  $("#drag-icn").css({
+    display: "block",
+    left: mouse.x + 13 + "px",
+    top: mouse.y + 10 + "px",
+  });
+}
+
+/**
+ * Drop files
+ */
+function drop(id) {
+  if (DRAG && !isFileSelected(id, "folder")) {
+    $("#folder-" + id).removeClass("drop");
+    moveTo(id);
+  }
+}
+
+/**
+ * Disable file dragging
+ */
+function endDrag() {
+  DRAG = false;
+
+  window.removeEventListener("mousemove", drag, false);
+  window.removeEventListener("mouseup", endDrag, false);
+
+  $("#drag-icn").css("display", "none");
+}
+
+/**
+ * Highlight destination folder
+ */
+function highlightFolder(obj, id, state) {
+  if (DRAG && !isFileSelected(id, "folder")) {
+    if (state === "on") jQuery(obj).parent().addClass("drop");
+    else if (state === "off") jQuery(obj).parent().removeClass("drop");
+  }
+}
+
+/**
+ * Show the field to update the name of a folder
+ */
+function showNameField(id, ev) {
+  if (ev) ev.stopPropagation();
+
+  FIELDS.folderName = true;
+  DRAG_ENABLED = false;
+
+  html = '<input type="text" class="input-name">';
+  $(html).appendTo("#folder-" + id + " .item");
+  var obj = $("#folder-" + id + " .input-name");
+
+  obj.val(htmlspecialchars_decode($("#folder-" + id + " .name").html()));
+  obj.select();
+  obj.blur(function () {
+    updateName(id);
+  });
+}
+
+/**
+ * Update and save folder name
+ */
+function updateName(id) {
+  FIELDS.folderName = false;
+
+  DRAG_ENABLED = true;
+  var obj = $("#folder-" + id + " .input-name");
+  var name = trim(obj.val());
+  name = name == "" ? LANG_UNTITLED_FOLDER : name;
+  var nameSanitised = htmlspecialchars(obj.val());
+
+  var formerName = $("#folder-" + id + " .name").html();
+
+  $("#folder-" + id + " .name").html(nameSanitised);
+  obj.remove();
+
+  if (nameSanitised !== formerName) {
+    displaySpinner(LANG_SAVING);
+
+    var ajax = $.ajax({
+      type: "POST",
+      url: PATH + "ajax/mylibrary/foldername",
+      data: {
+        lang: LANG,
+        id: id,
+        name: name,
+      },
+    })
+      .done(function (data) {
+        var JSON = jQuery.parseJSON(data);
+
+        if (JSON.status === "fail") {
+          displayAlert(JSON.error.message);
+        }
+
+        openFolder(FOLDER_ID);
+      })
+      .fail(function () {
+        displayAlert(LANG_ERROR);
+        hideSpinner();
+      });
+  }
+}
+
+/**
+ * Insert a new folder at the top of the list
+ */
+function insertNewFolder() {
+  $("html, body").animate({ scrollTop: 0 }, 100);
+
+  deselectFiles();
+
+  var html = "";
+  html += '<div id="folder-0" class="item-wrapper">';
+  html += '<div class="item">';
+  html += '<div class="name"></div>';
+  html += '<div class="folder-icn"></div>';
+  html +=
+    '<input type="text" class="input-name" value="' +
+    LANG_UNTITLED_FOLDER +
+    '">';
+  html += "</div>";
+  html += "</div>";
+  $(html).prependTo("#gallery-content");
+
+  FIELDS.folderName = true;
+  DRAG_ENABLED = false;
+
+  var obj = $("#folder-0 .input-name");
+  obj.select();
+  obj.blur(function () {
+    saveFolder();
+  });
+}
+
+/**
+ * Save a new folder
+ */
+function saveFolder() {
+  displaySpinner(LANG_SAVING);
+
+  FIELDS.folderName = false;
+
+  DRAG_ENABLED = true;
+  var obj = $("#folder-0 .input-name");
+  var name = trim(obj.val());
+  name = name == "" ? LANG_UNTITLED_FOLDER : name;
+  var nameSanitised = htmlspecialchars(obj.val());
+
+  $("#folder-0 .name").html(nameSanitised);
+  obj.remove();
+
+  var ajax = $.ajax({
+    type: "POST",
+    url: PATH + "ajax/mylibrary/newfolder",
+    data: {
+      lang: LANG,
+      parentId: FOLDER_ID,
+      name: name,
+    },
+  })
+    .done(function (data) {
+      var JSON = jQuery.parseJSON(data);
+
+      if (JSON.status === "fail") {
+        displayAlert(JSON.error.message);
+      } else {
+      }
+
+      openFolder(FOLDER_ID);
+    })
+    .fail(function () {
+      displayAlert(LANG_ERROR);
+      hideSpinner();
+    });
+}
+
+/**
+ * Move selection to another location
+ */
+function moveTo(id, force) {
+  var force = force !== undefined ? force : false;
+
+  if ((id != FOLDER_ID && FILES_SELECTED.length > 0) || force) {
+    displaySpinner(LANG_SAVING);
+
+    var ajax = $.ajax({
+      type: "POST",
+      url: PATH + "ajax/mylibrary/move",
+      data: {
+        lang: LANG,
+        folderId: id,
+        items: JSON.stringify(FILES_SELECTED),
+      },
+    })
+      .done(function (data) {
+        var JSON = jQuery.parseJSON(data);
+
+        if (JSON.status === "fail") {
+          displayAlert(JSON.error.message);
+          hideSpinner();
+        } else {
+          openFolder(FOLDER_ID);
+        }
+      })
+      .fail(function () {
+        displayAlert(LANG_ERROR);
+        hideSpinner();
+      });
+  }
+}
+
+/**
+ * Cut items selected
+ */
+function cut() {
+  if (FILES_SELECTED.length > 0) {
+    FILES_CUT = FILES_SELECTED.slice(0);
+
+    $("#tools .paste .qty").html(FILES_CUT.length);
+
+    $("#tools .cut").css("display", "none");
+    $("#tools .paste").css("display", "block");
+  }
+}
+
+/**
+ * Cancel cut function
+ */
+function cancelCut(ev) {
+  if (ev) ev.stopPropagation();
+
+  FILES_CUT = [];
+
+  $("#tools .paste").css("display", "none");
+  $("#tools .cut").css("display", "block");
+}
+
+/**
+ * Move items cut in the folder opened
+ */
+function paste() {
+  if (FILES_CUT.length > 0) {
+    FILES_SELECTED = FILES_CUT.slice(0);
+
+    moveTo(FOLDER_ID, true);
+    FILES_CUT = [];
+
+    $("#tools .paste").css("display", "none");
+    $("#tools .cut").css("display", "block");
+  }
+}
+
+/**
+ * Delete the contentn of the recycle bin
+ */
+function emptyRecycleBin() {
+  displaySpinner(LANG_SAVING);
+
+  var ajax = $.ajax({
+    type: "POST",
+    url: PATH + "ajax/mylibrary/emptybin",
+    data: {
+      lang: LANG,
+    },
+  })
+    .done(function (data) {
+      var JSON = jQuery.parseJSON(data);
+
+      if (JSON.status === "pass") {
+        $("#gallery-content").html("");
+        displayAlert(JSON.data.message);
+        openFolder(FOLDER_ID);
+      } else {
+        displayAlert(JSON.error.message);
+        hideSpinner();
+      }
+
+      cancelCut();
+    })
+    .fail(function () {
+      displayAlert(LANG_ERROR);
+      hideSpinner();
+    });
+}
+
+/**
+ * Display spinner
+ */
+function displaySpinner(text) {
+  var windowHeight = $(window).height();
+  var spinnerTop = Math.round((windowHeight - 200) / 3);
+
+  $("#curtain .spinner-wrapper").css("margin-top", spinnerTop + "px");
+  $("#curtain .label").html(text);
+  $("#curtain").css({
+    height: windowHeight + "px",
+    display: "block",
+  });
+}
+
+/**
+ * Hide spinner
+ */
+function hideSpinner() {
+  $("#curtain").css("display", "none");
+}
+
+/**
+ * Preload Images
+ */
+function preloadImg() {
+  var d = document;
+
+  if (d.images) {
+    if (!d.p) d.p = new Array();
+    var i,
+      j = d.p.length,
+      a = preloadImg.arguments;
+    for (i = 0; i < a.length; i++) {
+      if (a[i].indexOf("#") != 0) {
+        d.p[j] = new Image();
+        d.p[j++].src = a[i];
+      }
+    }
+  }
+}
+
+/**
+ * Property Manager
+ */
+MB.ModelWindow = function (id) {
+  if (BIN) {
+    return false;
+  }
+
+  this.id = id;
+  this.scope = "properties";
+  this.openInWorkshop = true;
+
+  var that = this;
+
+  if (MODEL_WINDOW) {
+    MODEL_WINDOW.clear();
+  }
+
+  MODEL_WINDOW = this;
+
+  var column = getColumnRef(this.id);
+
+  if (!column || AJAX.LOAD_PROPERTIES) {
+    return false;
+  }
+
+  displaySpinner(LANG_LOADING);
+  AJAX.LOAD_PROPERTIES = true;
+
+  var ajax = $.ajax({
+    type: "POST",
+    url: PATH + "ajax/mylibrary/model",
+    data: { lang: LANG, id: this.id },
+  })
+    .done(function (data) {
+      var JSON = jQuery.parseJSON(data);
+
+      if (JSON.status === "pass") {
+        for (var i in JSON.data) {
+          that[i] = JSON.data[i];
+        }
+        that.display();
+      } else {
+        displayAlert(JSON.error.message);
+      }
+
+      hideSpinner();
+      AJAX.LOAD_PROPERTIES = false;
+    })
+    .fail(function () {
+      AJAX.LOAD_PROPERTIES = false;
+      displayAlert(LANG_ERROR);
+      hideSpinner();
+    });
+
+  this.clear = function () {
+    MODEL_WINDOW = null;
+    $("#properties").slideToggle(200, function () {
+      $("#properties").remove();
+    });
+  };
+
+  this.changeScope = function (scope) {
+    if (scope === this.scope) {
+      return false;
+    }
+
+    this.scope = scope;
+
+    $("#properties .button").removeClass("on");
+    $("#button-" + this.scope).addClass("on");
+
+    if (this.scope === "properties") {
+      $("#window-links").css("display", "none");
+      $("#window-properties").css("display", "block");
+    } else if (this.scope === "links") {
+      $("#window-properties").css("display", "none");
+      $("#window-links").css("display", "block");
+    }
+  };
+
+  this.display = function () {
+    var html = "";
+    html += '<div id="properties" style="display:none">';
+    html += '<div class="arrow-wrapper">';
+    html +=
+      '<div class="arrow" style="left:' +
+      (93 + (column - 1) * 239) +
+      'px"></div>';
+    html += "</div>";
+    html += '<div class="main">';
+    html += '<div class="menu">';
+    html +=
+      '<div class="button on" id="button-properties" onclick="MODEL_WINDOW.changeScope(\'properties\')">';
+    html += '<div class="icn properties"></div>';
+    html += LANG_PROPERTIES;
+    html += "</div>";
+    html +=
+      '<div class="button" id="button-links" onclick="MODEL_WINDOW.changeScope(\'links\')">';
+    html += '<div class="icn model"></div>';
+    html += LANG_LINKS;
+    html += "</div>";
+    html += '<div class="close" onclick="MODEL_WINDOW.clear()"></div>';
+    html += "</div>";
+    html += '<div class="data">';
+    html += '<div id="window-properties">';
+    html += '<div class="row">';
+    html += '<div class="label">' + LANG_PUBLIC + "</div>";
+    html +=
+      '<div class="switch" id="switch-public" onclick="MODEL_WINDOW.togglePublicSwitch()">';
+    html += '<div class="container">';
+    html += '<div class="knob"></div>';
+    html += "</div>";
+    html += "</div>";
+    html += "</div>";
+    html += '<div class="row">';
+    html += '<div class="label">' + LANG_TYPE + "</div>";
+    html +=
+      '<div class="option" onclick="MODEL_WINDOW.selectType(\'minifig\')">';
+    html += '<div class="radio" id="radio-minifig"><div></div></div>';
+    html += '<div class="radio-label">' + LANG_MINIFIG + "</div>";
+    html += "</div>";
+    html += '<div class="option" onclick="MODEL_WINDOW.selectType(\'set\')">';
+    html += '<div class="radio" id="radio-set"><div></div></div>';
+    html += '<div class="radio-label">' + LANG_SET + "</div>";
+    html += "</div>";
+    html += '<div class="option" onclick="MODEL_WINDOW.selectType(\'moc\')">';
+    html += '<div class="radio" id="radio-moc"><div></div></div>';
+    html += '<div class="radio-label">' + LANG_MOC + "</div>";
+    html += "</div>";
+    html += "</div>";
+    html += '<div id="properties-set" class="properties-special">';
+    html += '<div class="row">';
+    html += '<div class="label">' + LANG_SET_REF + "</div>";
+    html += '<div class="input-text-wrapper">';
+    html += '<input type="text" class="input-set" id="properties-set-ref">';
+    html +=
+      '<div class="button-set" onclick="MODEL_WINDOW.getSetData()"></div>';
+    html += "</div>";
+    html +=
+      '<a href="http://brickset.com/sets" target=_blank><span class="source">Brickset.com</span></a>';
+    html += "</div>";
+    html += '<div class="row">';
+    html += '<div class="label">' + LANG_SET_NAME + "</div>";
+    html += '<div class="text-value" id="properties-set-name"></div>';
+    html += "</div>";
+    html += '<div class="row">';
+    html += '<div class="label">' + LANG_YEAR + "</div>";
+    html += '<div class="text-value" id="properties-set-year"></div>';
+    html += "</div>";
+    html += '<div class="row">';
+    html += '<div class="label">' + LANG_THEME + "</div>";
+    html += '<div class="text-value" id="properties-set-theme"></div>';
+    html += "</div>";
+    html += "</div>";
+    html += '<div id="properties-minifig" class="properties-special">';
+    html += '<div class="row">';
+    html += '<div class="label">' + LANG_MINIFIG_REF + "</div>";
+    html += '<div class="input-text-wrapper">';
+    html += '<input type="text" class="input-set" id="properties-minifig-ref">';
+    html +=
+      '<div class="button-set" onclick="MODEL_WINDOW.getMinifigData()"></div>';
+    html += "</div>";
+    html +=
+      '<a href="http://www.bricklink.com/catalogSearch.asp" target=_blank><span class="source">Bricklink.com</span></a>';
+    html += "</div>";
+    html += '<div class="row">';
+    html += '<div class="label">' + LANG_MINIFIG_NAME + "</div>";
+    html += '<div class="text-value" id="properties-minifig-name"></div>';
+    html += "</div>";
+    /*html += '<div class="row">';
+                                html += '<div class="label">' + LANG_YEAR + '</div>';
+                                html += '<div class="input-text-wrapper">';
+                                    html += '<input type="text" class="input" id="properties-minifig-year">';
+                                html += '</div>';
+                            html += '</div>';*/
+    html += '<div class="row">';
+    html += '<div class="label">' + LANG_THEME + "</div>";
+    html += '<div class="text-value" id="properties-minifig-theme"></div>';
+    html += "</div>";
+    html += "</div>";
+    html += '<div id="properties-moc" class="properties-special">';
+    html += '<div class="row">';
+    html += '<div class="label">' + LANG_MOC_WORKSHOP + "</div>";
+    html += '<div class="switch" id="switch-workshop">';
+    html += '<div class="container">';
+    html += '<div class="knob"></div>';
+    html += "</div>";
+    html += "</div>";
+    html += "</div>";
+    html += '<div class="row">';
+    html += '<div class="label">' + LANG_MOC_NAME + "</div>";
+    html += '<div class="input-text-wrapper">';
+    html += '<input type="text" class="input" id="properties-moc-name">';
+    html += "</div>";
+    html += "</div>";
+    html += "</div>";
+    html += '<div class="row">';
+    html += '<div class="label">' + LANG_DESCRIPTION + "</div>";
+    html += '<div class="input-textarea-wrapper">';
+    html += '<textarea id="properties-description"></textarea>';
+    html += "</div>";
+    html += '<br style="clear:both">';
+    html += "</div>";
+    html += '<div class="row">';
+    html += '<div class="label">' + LANG_TAGS + "</div>";
+    html += '<div id="properties-tags"></div>';
+    html += '<br style="clear:both">';
+    html += "</div>";
+    html += '<div class="properties-buttons">';
+    html +=
+      '<div class="properties-button save" id="properties-save" onclick="MODEL_WINDOW.saveProperties()">' +
+      LANG_SAVE +
+      "</div>";
+    html +=
+      '<div class="properties-button cancel" onclick="MODEL_WINDOW.clear()">' +
+      LANG_CANCEL +
+      "</div>";
+    html += "</div>";
+    html += "</div>";
+    html += '<div id="window-links">';
+    if (this.public) {
+      html += '<div class="row">';
+      html += '<div class="label">' + LANG_GALLERY + "</div>";
+      html += '<a href="' + this.url + '" class="eye"></a>';
+      html += '<div class="link-wrapper">';
+      html += '<input type="text" class="link" id="links-gallery">';
+      html += "</div>";
+      html += "</div>";
+    }
+    html += '<div class="row" style="border-bottom:0px">';
+    html += '<div class="label">' + LANG_WORKSHOP + "</div>";
+    html +=
+      '<div class="eye" onclick="MODEL_WINDOW.openModelInWorkshop()" title="' +
+      LANG_TOOLTIP_SHOW_WS +
+      '"></div>';
+    //html += '<div class="bin" onclick="MODEL_WINDOW.deletePrevRevisions()" title="' + LANG_TOOLTIP_DEL_REV + '"></div>';
+    html += '<div class="select-wrapper-small">';
+    html += '<select id="links-revisions"></select>';
+    html += "</div>";
+    html += '<div class="links-revision">' + LANG_REVISION + " :</div>";
+    html += "</div>";
+    html += "</div>";
+    html += "</div>";
+    html += "</div>";
+    html += "</div>";
+
+    insertWindow(this.id, html);
+
+    $("#switch-workshop").on("click", function () {
+      toggleWorkshopSwitch();
+    });
+
+    $("#properties-set-ref")
+      .focus(function () {
+        FIELDS.setRef = true;
+      })
+      .blur(function () {
+        FIELDS.setRef = false;
+      });
+
+    $("#properties-moc-name")
+      .focus(function () {
+        FIELDS.mocName = true;
+      })
+      .blur(function () {
+        FIELDS.mocName = false;
+      });
+
+    $("#properties-minifig-ref")
+      .focus(function () {
+        FIELDS.minifigRef = true;
+      })
+      .blur(function () {
+        FIELDS.minifigRef = false;
+      });
+
+    $("#properties-description")
+      .focus(function () {
+        FIELDS.description = true;
+      })
+      .blur(function () {
+        FIELDS.description = false;
+      });
+
+    $("#links-gallery")
+      .focus(function () {
+        FIELDS.galleryLink = true;
+      })
+      .blur(function () {
+        FIELDS.galleryLink = false;
+        $("#links-gallery").val(that.url);
+      });
+
+    this.drawProperties();
+    this.drawLinks();
+
+    $("#properties").slideToggle(200, function () {
+      $("body").animate(
+        {
+          scrollTop: $("#properties").offset().top - 287,
+        },
+        200
+      );
+    });
+  };
+
+  this.drawProperties = function () {
+    this.displayPublicStatus();
+    this.displayType();
+    this.display_tags();
+
+    drawWorkshopStatus();
+
+    switch (this.type) {
+      case "set":
+        $("#properties-set-ref").val(this.reference);
+        $("#properties-set-name").html(this.name);
+        $("#properties-set-year").html(this.year);
+        this.displaySetTheme();
+        break;
+      case "moc":
+        $("#properties-moc-name").val(this.name);
+        break;
+      case "minifig":
+        $("#properties-minifig-ref").val(this.reference);
+        $("#properties-minifig-name").html(this.name);
+        //$('#properties-minifig-year').val(this.year);
+        this.displayMinifigTheme();
+        break;
+    }
+
+    $("#properties-description").val(this.description);
+  };
+
+  this.drawLinks = function () {
+    $("#links-gallery").val(this.url);
+
+    var revisions = "";
+    for (var i = this.revisions.length - 1; i >= 0; i--) {
+      revisions +=
+        '<option value="' +
+        this.revisions[i] +
+        '">' +
+        this.revisions[i] +
+        "</option>";
+    }
+    $("#links-revisions").html(revisions);
+  };
+
+  this.togglePublicSwitch = function () {
+    this.public = this.public ? false : true;
+    this.displayPublicStatus();
+  };
+
+  this.selectType = function (type) {
+    this.type = type;
+    this.displayType();
+  };
+
+  this.displayPublicStatus = function () {
+    $("#switch-public .knob").css("left", function () {
+      return !that.public ? "-5px" : "44px";
+    });
+  };
+
+  function toggleWorkshopSwitch() {
+    that.openInWorkshop = !that.openInWorkshop;
+
+    drawWorkshopStatus();
+  }
+
+  function drawWorkshopStatus() {
+    $("#switch-workshop .knob").css("left", function () {
+      return !that.openInWorkshop ? "-5px" : "44px";
+    });
+  }
+
+  this.displayType = function () {
+    $("#properties .radio").each(function () {
+      $(this).removeClass("checked");
+    });
+
+    $("#radio-" + that.type).addClass("checked");
+
+    $("#window-properties .properties-special").css("display", "none");
+    $("#properties-" + this.type).css("display", "block");
+  };
+
+  this.display_tags = function () {
+    var html = "";
+    for (var i = 0; i < this.tags.length; i++) {
+      html += '<div class="tag" id="tag-' + i + '">';
+      html += htmlspecialchars(this.tags[i].name);
+      html +=
+        '<div class="del" onclick="MODEL_WINDOW.delete_tag(' + i + ')"></div>';
+      html += "</div>";
+    }
+    html +=
+      '<input type="text" id="properties-new-tag" placeholder="' +
+      LANG_ADD_TAG +
+      '" autocomplete="off">';
+    html += '<br style="clear:both">';
+    $("#properties-tags").html(html);
+
+    $("#properties-new-tag")
+      .focus(function () {
+        FIELDS.tag = true;
+      })
+      .blur(function () {
+        FIELDS.tag = false;
+        that.save_tag();
+      });
+  };
+
+  this.displaySetTheme = function () {
+    var html = "";
+    for (var i = 0; i < this.theme.length; i++) {
+      html += i > 0 ? '<div class="theme-arrow"></div>' : "";
+      html += '<div class="theme">' + this.theme[i].name + "</div>";
+    }
+
+    $("#properties-set-theme").html(html);
+  };
+
+  this.displayMinifigTheme = function () {
+    var html = "";
+    for (var i = 0; i < this.theme.length; i++) {
+      html += i > 0 ? '<div class="theme-arrow"></div>' : "";
+      html += '<div class="theme">' + this.theme[i].name + "</div>";
+    }
+
+    $("#properties-minifig-theme").html(html);
+  };
+
+  this.getSetData = function () {
+    displaySpinner(LANG_LOADING);
+    AJAX.LOAD_SET_DATA = true;
+
+    var ajax = $.ajax({
+      type: "POST",
+      url: PATH + "ajax/mylibrary/set",
+      data: { lang: LANG, reference: $("#properties-set-ref").val() },
+    })
+      .done(function (data) {
+        var JSON = jQuery.parseJSON(data);
+
+        if (JSON.status === "pass") {
+          that.reference = JSON.data.number;
+          that.name = JSON.data.name;
+          that.year = JSON.data.year;
+          that.theme = JSON.data.theme;
+
+          $("#properties-set-ref").val(that.reference);
+          that.displaySetTheme();
+        } else {
+          that.reference = $("#properties-set-ref").val();
+          that.name = "";
+          that.year = "";
+          that.theme = {};
+          $("#properties-set-theme").html("");
+        }
+
+        $("#properties-set-name").html(that.name);
+        $("#properties-set-year").html(that.year);
+
+        hideSpinner();
+        AJAX.LOAD_SET_DATA = false;
+      })
+      .fail(function () {
+        AJAX.LOAD_SET_DATA = true;
+        displayAlert(LANG_ERROR);
+        hideSpinner();
+      });
+  };
+
+  this.getMinifigData = function () {
+    displaySpinner(LANG_LOADING);
+    AJAX.LOAD_MINIFIG_DATA = true;
+
+    var ajax = $.ajax({
+      type: "POST",
+      url: PATH + "ajax/mylibrary/minifig",
+      data: { lang: LANG, number: $("#properties-minifig-ref").val() },
+    })
+      .done(function (data) {
+        var JSON = jQuery.parseJSON(data);
+
+        if (JSON.status === "pass") {
+          that.reference = JSON.data.number;
+          that.name = JSON.data.name;
+          that.year = JSON.data.year;
+          that.theme = JSON.data.theme;
+
+          $("#properties-minifig-ref").val(that.reference);
+          that.displayMinifigTheme();
+        } else {
+          that.reference = $("#properties-minifig-ref").val();
+          that.name = "";
+          that.year = "";
+          that.theme = [];
+          $("#properties-minifig-theme").html("");
+        }
+
+        $("#properties-minifig-name").html(that.name);
+        $("#properties-minifig-year").html(that.year);
+
+        hideSpinner();
+        AJAX.LOAD_MINIFIG_DATA = false;
+      })
+      .fail(function () {
+        AJAX.LOAD_MINIFIG_DATA = true;
+        displayAlert(LANG_ERROR);
+        hideSpinner();
+      });
+  };
+
+  this.delete_tag = function (id) {
+    $("#tag-" + id).remove();
+    this.tags[id] = null;
+  };
+
+  this.save_tag = function () {
+    var tag = trim($("#properties-new-tag").val());
+    $("#properties-new-tag").val("");
+
+    if (tag === "" || this.tag_exists(tag)) {
+      return false;
+    }
+
+    MODEL_WINDOW.tags.push({ id: 0, name: tag });
+    var index = this.tags.length - 1;
+
+    html = '<div class="tag" id="tag-' + index + '">';
+    html += htmlspecialchars(tag);
+    html +=
+      '<div class="del" onclick="MODEL_WINDOW.delete_tag(' +
+      index +
+      ')"></div>';
+    html += "</div>";
+    $("#properties-new-tag").before(html);
+
+    $("#properties-new-tag").focus();
+  };
+
+  this.tag_exists = function (tag) {
+    for (var i = 0; i < this.tags.length; i++) {
+      if (this.tags[i]) {
+        if (this.tags[i].name === tag) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+
+  this.saveProperties = function () {
+    var data = {
+      lang: LANG,
+      modelId: this.id,
+      public: this.public,
+      type: this.type,
+    };
+
+    switch (this.type) {
+      case "moc":
+        data.name = $("#properties-moc-name").val();
+        data.block_workshop = !that.openInWorkshop;
+        break;
+      case "set":
+        data.reference = $("#properties-set-ref").val();
+        break;
+      case "minifig":
+        data.reference = $("#properties-minifig-ref").val();
+        break;
+    }
+
+    data.description = $("#properties-description").val();
+
+    data.tags = [];
+    for (var i = 0; i < this.tags.length; i++) {
+      if (this.tags[i]) {
+        data.tags.push(this.tags[i].name);
+      }
+    }
+
+    displaySpinner(LANG_SAVING);
+    AJAX.SAVE_PROPERTIES = true;
+
+    var ajax = $.ajax({
+      type: "POST",
+      url: PATH + "ajax/mylibrary/savemodel",
+      data: data,
+    })
+      .done(function (data) {
+        var JSON = jQuery.parseJSON(data);
+
+        AJAX.SAVE_PROPERTIES = false;
+
+        if (JSON.status === "fail") {
+          hideSpinner();
+          displayAlert(JSON.error.message);
+          that.clear();
+        } else {
+          openFolder(FOLDER_ID);
+        }
+      })
+      .fail(function () {
+        AJAX.SAVE_PROPERTIES = true;
+        displayAlert(LANG_ERROR);
+        hideSpinner();
+      });
+  };
+
+  this.openModelInWorkshop = function () {
+    var rev = $("#links-revisions").val();
+    window.location.href = PATH + LANG + "/workshop/" + this.id + "-" + rev;
+  };
+
+  this.deletePrevRevisions = function () {
+    var rev = $("#links-revisions").val();
+
+    displaySpinner(LANG_SAVING);
+
+    AJAX.DELETE_REVISIONS = true;
+
+    var ajax = $.ajax({
+      type: "POST",
+      url: PATH + "ajax/mylibrary/deleterevisions",
+      data: { lang: LANG, id: this.id, revision: rev },
+    })
+      .done(function (data) {
+        var JSON = jQuery.parseJSON(data);
+
+        if (JSON.status === "fail") {
+          displayAlert(JSON.error.message);
+        } else {
+          var maxRev = rev - 1;
+          while (maxRev > 0) {
+            $("#links-revisions option[value='" + maxRev + "']").remove();
+            maxRev--;
+          }
+        }
+
+        hideSpinner();
+        AJAX.DELETE_REVISIONS = false;
+      })
+      .fail(function () {
+        AJAX.DELETE_REVISIONS = true;
+        displayAlert(LANG_ERROR);
+        hideSpinner();
+      });
+  };
+
+  function getColumnRef(id) {
+    var no = 0;
+    for (var i = 0; i < FILES.length; i++) {
+      if (FILES[i].id == id && FILES[i].type === "model") {
+        no = i + 1;
+      }
+    }
+
+    if (no === 0) {
+      return false;
+    }
+
+    var modulus = no % 4;
+    var ref = modulus === 0 ? 4 : modulus;
+
+    return ref;
+  }
+
+  function insertWindow(id, html) {
+    var index = null;
+    for (var i = 0; i < FILES.length; i++) {
+      if (FILES[i].id == id) {
+        index = i;
+      }
+    }
+
+    if (index === null) {
+      return false;
+    }
+
+    var ref = (Math.floor(index / 4) + 1) * 4 - 1;
+
+    if (ref >= FILES.length - 1) {
+      $(html).appendTo("#gallery-content");
+      $("#properties").css("margin-bottom", "29px");
+    } else {
+      $("#" + FILES[ref].type + "-" + FILES[ref].id).after(html);
+    }
+  }
+};
+
+function preventZoom(e, type, id) {
+  var t2 = e.timeStamp;
+  var t1 = e.currentTarget.dataset.lastTouch || t2;
+  var dt = t2 - t1;
+  var fingers = e.touches.length;
+  e.currentTarget.dataset.lastTouch = t2;
+
+  if (!dt || dt > 500 || fingers > 1) return; // not double-tap
+
+  e.preventDefault();
+  e.target.click();
+
+  if (type == "folder") {
+    openFolder(id);
+  } else if (type == "model") {
+    MB.ModelWindow(id);
+  }
+}
