@@ -70,5 +70,16 @@ public class CameraSwithc : MonoBehaviour
             transform.position = new Vector3(44f, 6.66f, -11.19f);
             platforms[4].SetActive(true);
         }
+
+
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            foreach (GameObject platform in platforms)
+            {
+                platform.SetActive(false);
+            }
+            transform.position = new Vector3(55f, 6.66f, -11.19f);
+            platforms[5].SetActive(true);
+        }
     }
 }

@@ -61,6 +61,7 @@
     <Analyzer Include="C:\Program Files\Unity Hub\6000.0.49f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\AnimPlayer.cs" />
     <Compile Include="Assets\CameraSwithc.cs" />
     <Compile Include="Assets\Scripts\Char.cs" />
     <Compile Include="Assets\Scripts\LoreManager.cs" />
