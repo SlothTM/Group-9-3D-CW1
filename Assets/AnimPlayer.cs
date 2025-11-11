@@ -39,7 +39,7 @@ public class AnimPlayer : MonoBehaviour
             figs[currentfig].SetActive(false);
             if (currentfig == 0)
             {
-                currentfig = figs.Length;
+                currentfig = figs.Length-1;
             }
             else
             {
