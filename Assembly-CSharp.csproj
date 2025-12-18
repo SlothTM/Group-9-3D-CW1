@@ -76,8 +76,12 @@
     <Compile Include="Assets\Scripts\AnimPlayer.cs" />
     <Compile Include="Assets\Scripts\CameraSwithc.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
+<<<<<<< HEAD
     <Compile Include="Assets\Scripts\BrickTriggerExplode.cs" />
     <Compile Include="Assets\Scripts\CharControllerC.cs" />
+=======
+    <Compile Include="Assets\Scripts\Dialogue_Trigger.cs" />
+>>>>>>> 1cb3012f74bfc4054acfa03470a4e92fb891b854
     <Compile Include="Assets\Scripts\Look.cs" />
     <Compile Include="Assets\Scripts\MouseInput.cs" />
     <Compile Include="Assets\Scripts\ExploderSlider.cs" />
