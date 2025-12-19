@@ -7,18 +7,36 @@ using Unity.VisualScripting;
 public class Dialogue_Trigger : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public GameObject trigger;
+    public GameObject dia;
+    [SerializeField] private States game;
     public GameObject text;
     private Coroutine stopper;
     public bool inrange = false;
+    public GameObject Dialoguebox;
 
     // Update is called once per frame
     void Update()
     {
-        if (inrange && Input.GetKeyDown(KeyCode.E))
+        if (inrange && Input.GetKeyDown(KeyCode.E)) //press E to interact
         {
+            game.pausedState = true; //pause the game
+            Dialoguebox.SetActive(true);
+            dia.SetActive(true); //start dialogue
             text.SetActive(false);
-            trigger.SetActive(true);
+
+        }
+
+        if (game.pausedState && Input.GetKeyDown(KeyCode.Escape)) //press escape to exit dialogue and unpauses
+        {
+            Dialoguebox.SetActive(false);
+            dia.SetActive(false); //stop dialogue instantly
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            text.SetActive(true);
         }
     }
 
@@ -27,31 +45,27 @@ public class Dialogue_Trigger : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             inrange = true;
-            text.SetActive(true);
-            if (stopper != null)
-            {
-                StopCoroutine(stopper);
-                stopper = null;
-            }
-
         }
-        
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (inrange)
+        if (other.CompareTag("Player"))
         {
+
+            inrange = false;
+            text.SetActive(false);
             stopper = StartCoroutine(exited());
         }
-        text.SetActive(false);
-
     }
+
 
     private IEnumerator exited()
     {
-        yield return new WaitForSeconds(3f);
-        trigger.SetActive(false);
+        yield return new WaitForSeconds(1f); //wait a second before exiting dialogue
+        Dialoguebox.SetActive(false);
+        dia.SetActive(false);
+        game.pausedState = false;
         inrange = false;
     }
 }

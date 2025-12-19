@@ -13,6 +13,8 @@ public class LoreManager : MonoBehaviour
     [TextArea(3, 10)]  //text box size in ediror easier to type
     public string[] dialogue;
     public float textSpeed;
+    [SerializeField] private States game;
+    public float timetowait = 2.0f;
 
     public int index; //current line
 
@@ -69,8 +71,9 @@ public class LoreManager : MonoBehaviour
         }
         else
         {
-            yield return new WaitForSeconds(10f);
+            yield return new WaitForSeconds(timetowait);
             text.text = string.Empty; //empties the screen once done
+
         }
     }
     private void OnDisable()
