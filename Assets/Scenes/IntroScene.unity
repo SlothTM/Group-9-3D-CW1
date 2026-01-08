@@ -169,13 +169,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 455253578}
   dialogue:
-  - INSERT DIALOGUE HERE IT WILL PRINT LIKE THIS...
-  - Text will stay on screen for 2 seconds once block is complete...
-  - So break it up into digestible parts to make it easier to read...
-  - Or slow it down in the inspector by increasing the text speed number...
-  - Then once its finished we move on to actual game like so
-  - Press SPACE to wake up (The last line will stay for about 10 seconds can increase
-    in code)
+  - There was once a young lad that decided to explore Berry Island
+  - He sought to uncover the rumours where some who returned from the island turned
+    insane and later died
+  - Although discouraged by his peers, his desire for truth and adventure pushed
+    him to journey the seven seas and take the plunge
+  - "Will he be able to uncover the truth or will he succumb to the same fate as
+    those before\u2026"
+  - Press SPACE to wake up
   textSpeed: 0.01
   game: {fileID: 0}
   timetowait: 10
