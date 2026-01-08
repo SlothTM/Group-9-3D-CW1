@@ -5,6 +5,7 @@ public class States : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public bool pausedState = false;    
     public GameObject pausescreen;
+    public GameObject ptext;
 
     void Start()
     {
@@ -29,10 +30,12 @@ public class States : MonoBehaviour
         if (pausedState)
         {
             pausescreen.SetActive(true);
+            ptext.SetActive(true);
         }
         else
         {
             pausescreen.SetActive(false);
+            ptext.SetActive(false);
         }
     }
 }
